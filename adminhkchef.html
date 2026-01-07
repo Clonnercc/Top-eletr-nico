@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel Admin Pix</title>
+
+<style>
+body{margin:0;font-family:system-ui;background:#f2f2f2}
+.container{max-width:420px;margin:40px auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+h2{text-align:center;margin-bottom:20px}
+input,textarea,button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  font-size:14px
+}
+textarea{min-height:90px}
+button{
+  background:#000;
+  color:#fff;
+  border:0;
+  border-radius:6px;
+  cursor:pointer
+}
+.hidden{display:none}
+.small{font-size:12px;color:#777;text-align:center;margin-top:10px}
+</style>
+</head>
+
+<body>
+
+<div class="container" id="login">
+  <h2>Login Admin</h2>
+  <input type="password" id="senha" placeholder="Senha">
+  <button onclick="entrar()">Entrar</button>
+</div>
+
+<div class="container hidden" id="admin">
+  <h2>Painel Pix</h2>
+
+  <input id="titulo" placeholder="Título">
+  <input id="subtitulo" placeholder="Subtítulo">
+  <input id="valor" placeholder="Valor (ex: R$ 475,21)">
+  <textarea id="codigo" placeholder="Código Pix"></textarea>
+  <input id="validade" placeholder="Texto de validade">
+
+  <button onclick="salvar()">Salvar e atualizar clientes</button>
+  <div class="small">Clientes verão a alteração automaticamente</div>
+</div>
+
+<script>
+const API_URL = 'https://pix-site-api.onrender.com/api/pix';
+const SENHA_ADMIN = '001533';
+
+/* LOGIN */
+function entrar(){
+  if(document.getElementById('senha').value !== SENHA_ADMIN){
+    alert('Senha incorreta');
+    return;
+  }
+  document.getElementById('login').classList.add('hidden');
+  document.getElementById('admin').classList.remove('hidden');
+  carregar();
+}
+
+/* CARREGAR DADOS ATUAIS */
+async function carregar(){
+  const res = await fetch(API_URL, { cache: 'no-store' });
+  const d = await res.json();
+
+  titulo.value = d.titulo || '';
+  subtitulo.value = d.subtitulo || '';
+  valor.value = d.valor || '';
+  codigo.value = d.codigo || '';
+  validade.value = d.validade || '';
+}
+
+/* SALVAR PARA API */
+async function salvar(){
+  const dados = {
+    titulo: titulo.value,
+    subtitulo: subtitulo.value,
+    valor: valor.value,
+    codigo: codigo.value,
+    validade: validade.value
+  };
+
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      senha: SENHA_ADMIN,
+      dados
+    })
+  });
+
+  if(res.ok){
+    alert('Atualizado com sucesso');
+  }else{
+    alert('Erro ao salvar');
+  }
+}
+</script>
+
+</body>
+</html>
