@@ -2,122 +2,74 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pagamento Pix | Top Eletrônica</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#f1f3f6
-}
-header{
-  background:#111;
-  color:#fff;
-  padding:20px;
-  text-align:center
-}
-.container{
-  max-width:420px;
-  margin:20px auto;
-  background:#fff;
-  padding:20px;
-  border-radius:10px;
-  box-shadow:0 10px 30px rgba(0,0,0,.1)
-}
-input,button{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  font-size:14px
-}
-button{
-  background:#2db36c;
-  color:#fff;
-  border:0;
-  border-radius:6px;
-  cursor:pointer
-}
-.code{
-  background:#eee;
-  padding:12px;
-  border-radius:6px;
-  word-break:break-all;
-  font-size:13px
-}
+body{margin:0;font-family:system-ui;background:#f2f2f2}
 .hidden{display:none}
-footer{
-  text-align:center;
-  font-size:12px;
-  color:#555;
-  margin:20px
-}
+.top{background:#2db36c;color:#fff;padding:30px 20px;text-align:center}
+.card{background:#fff;border-radius:12px;padding:20px;margin:20px;box-shadow:0 10px 25px rgba(0,0,0,.1)}
+input,button{width:100%;padding:12px;margin-top:10px;font-size:14px}
+button{border:0;border-radius:8px;background:#1c9bd6;color:#fff}
+.code{background:#f4f4f4;padding:12px;border-radius:6px;font-size:12px;word-break:break-all}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;place-items:center}
+.modal .box{background:#fff;border-radius:12px;padding:20px;max-width:340px}
 </style>
 </head>
 
 <body>
 
-<header>
-<h2>Top Eletrônica</h2>
-<p>Pagamento rápido e seguro via Pix</p>
-</header>
-
-<div class="container" id="form">
-<input id="nome" placeholder="Nome completo">
-<input id="telefone" placeholder="WhatsApp">
-<input id="cpf" placeholder="CPF">
-<input id="endereco" placeholder="Endereço completo">
-<button onclick="continuar()">Continuar</button>
+<div class="top">
+  <h2 id="titulo">Falta pouco!</h2>
+  <p id="subtitulo">Copie e cole o código Pix</p>
 </div>
 
-<div class="container hidden" id="pix">
-<h3 id="titulo"></h3>
-<p id="subtitulo"></p>
-<strong id="valor"></strong>
+<div class="card">
+  <div>Valor do Pix:</div>
+  <div id="valor" style="font-size:22px;font-weight:700"></div>
 
-<p>Código Pix:</p>
-<div class="code" id="codigo"></div>
+  <div style="margin-top:10px">Código Pix:</div>
+  <div class="code" id="codigo"></div>
 
-<button onclick="copiar()">Copiar código</button>
+  <button onclick="copiar()">Copiar código</button>
+  <p id="validade" style="font-size:12px;color:#777"></p>
 </div>
 
-<footer>
-© Top Eletrônica – Todos os direitos reservados
-</footer>
+<div class="modal" id="modal">
+  <div class="box">
+    <h3>Código copiado</h3>
+    <ol>
+      <li>Abra o app do banco</li>
+      <li>Pix → Copia e Cola</li>
+      <li>Cole o código</li>
+      <li>Confirme</li>
+    </ol>
+    <button onclick="modal.style.display='none'">Entendi</button>
+  </div>
+</div>
 
 <script>
 const API='https://pix-site-api.onrender.com/api/pix';
-const WHATS='5516997867250';
 let PIX='';
 
 async function carregar(){
- const r=await fetch(API);
- const d=await r.json();
- titulo.innerText=d.titulo;
- subtitulo.innerText=d.subtitulo;
- valor.innerText=d.valor;
- codigo.innerText=d.codigo;
- PIX=d.codigo;
+  const r=await fetch(API,{cache:'no-store'});
+  const d=await r.json();
+  titulo.innerText=d.titulo;
+  subtitulo.innerText=d.subtitulo;
+  valor.innerText=d.valor;
+  codigo.innerText=d.codigo;
+  validade.innerText=d.validade;
+  PIX=d.codigo;
 }
 carregar();
-
-function continuar(){
- if(!nome.value||!telefone.value||!cpf.value||!endereco.value){
-  alert('Preencha todos os campos');
-  return;
- }
- form.classList.add('hidden');
- pix.classList.remove('hidden');
-}
+setInterval(carregar,5000);
 
 function copiar(){
- navigator.clipboard.writeText(PIX);
- const msg=`Olá! Fiz um pedido na Top Eletrônica.
-Nome: ${nome.value}
-Telefone: ${telefone.value}
-Endereço: ${endereco.value}
-Valor: ${valor.innerText}`;
- window.location.href=`https://wa.me/${WHATS}?text=${encodeURIComponent(msg)}`;
+  navigator.clipboard.writeText(PIX).then(()=>{
+    modal.style.display='grid';
+  });
 }
 </script>
 
